@@ -67,30 +67,32 @@ export const login = async (req, res) => {
 
 export const getUserProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.user.userId || req.user.id).select(
-      "-password"
-    );
+    const userId = req.user.userId || req.user.id;
+    console.log("👉 Logged in userId:", userId);
+    const user = await User.findById(userId).select("-password");
 
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
 
+    const baseUrl = process.env.VITE_API_BASE_URL || "http://localhost:5000";
+
     res.json({
       name: user.name,
       email: user.email,
       profilePicture: user.profilePicture
-        ? `${process.env.VITE_API_BASE_URL}${user.profilePicture}`
+        ? `${baseUrl}${user.profilePicture}`
         : null,
       role: user.role,
-      // createdAt: user.createdAt,
-      // updatedAt: user.updatedAt,
       createdAt: user.createdAt ? new Date(user.createdAt).toISOString() : null,
       updatedAt: user.updatedAt ? new Date(user.updatedAt).toISOString() : null,
     });
   } catch (error) {
+    console.error("🔥 Error in getUserProfile:", error);
     res.status(500).json({ error: "Failed to fetch user profile" });
   }
 };
+
 
 export const getAllUsers = async (req, res) => {
   try {
