@@ -1,12 +1,7 @@
 import Cart from "../models/Cart.js";
 
-// 🛒 Add to Cart
 export const addToCart = async (req, res) => {
   try {
-    if (req.user.role === "admin") {
-      return res.status(403).json({ error: "Admin is not allowed to modify cart" });
-    }
-
     const { productId, quantity } = req.body;
     const userId = req.user.userId;
 
@@ -21,15 +16,18 @@ export const addToCart = async (req, res) => {
     );
 
     if (existingProduct) {
+      // Update quantity
       const newQuantity = existingProduct.quantity + quantity;
       if (newQuantity > 0) {
         existingProduct.quantity = newQuantity;
       } else {
+        // Remove product if quantity would become 0 or negative
         cart.products = cart.products.filter(
           (item) => item.productId.toString() !== productId
         );
       }
     } else if (quantity > 0) {
+      // Only add new product if quantity is positive
       cart.products.push({ productId, quantity });
     }
 
@@ -37,36 +35,45 @@ export const addToCart = async (req, res) => {
     await cart.populate("products.productId");
     res.json({ message: "Product added to cart", cart });
   } catch (error) {
-    console.error("Add to cart error:", error);
     res.status(500).json({ error: "Error adding to cart" });
+    console.error("Add to cart error:", error);
   }
 };
 
-// 🛒 Get Cart
 export const getCart = async (req, res) => {
   try {
-    if (req.user.role === "admin") {
-      return res.status(403).json({ error: "Admin is not allowed to access cart" });
-    }
-
     const cart = await Cart.findOne({ userId: req.user.userId }).populate(
       "products.productId"
     );
 
     res.json(cart || { products: [] });
   } catch (error) {
-    console.error("Get cart error:", error);
     res.status(500).json({ error: "Error fetching cart" });
+    console.error("Get cart error:", error);
   }
 };
 
-// 🛒 Remove from Cart
+// export const getCart = async (req, res) => {
+//   try {
+//     // ❌ Block admin from accessing the cart
+//     if (req.user.role === "admin") {
+//       return res.status(403).json({ error: "Admin is not allowed to access cart" });
+//     }
+
+//     const cart = await Cart.findOne({ userId: req.user.userId }).populate(
+//       "products.productId"
+//     );
+
+//     res.json(cart || { products: [] });
+//   } catch (error) {
+//     console.error("Get cart error:", error);
+//     res.status(500).json({ error: "Error fetching cart" });
+//   }
+// };
+
+
 export const removeFromCart = async (req, res) => {
   try {
-    if (req.user.role === "admin") {
-      return res.status(403).json({ error: "Admin is not allowed to modify cart" });
-    }
-
     const { productId } = req.params;
     const userId = req.user.userId;
 
