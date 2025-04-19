@@ -11,7 +11,7 @@ export const CartProvider = ({ children }) => {
 
   const fetchCart = async () => {
     const token = localStorage.getItem("token");
-    if (!token) {
+    if (!token || user?.role === "admin") {
       return;
     }
 
