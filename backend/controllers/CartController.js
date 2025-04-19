@@ -42,16 +42,22 @@ export const addToCart = async (req, res) => {
 
 export const getCart = async (req, res) => {
   try {
+    
+    if (req.user.role === "admin") {
+      return res.status(403).json({ error: "Admin is not allowed to access cart" });
+    }
+
     const cart = await Cart.findOne({ userId: req.user.userId }).populate(
       "products.productId"
     );
 
     res.json(cart || { products: [] });
   } catch (error) {
-    res.status(500).json({ error: "Error fetching cart" });
     console.error("Get cart error:", error);
+    res.status(500).json({ error: "Error fetching cart" });
   }
 };
+
 
 export const removeFromCart = async (req, res) => {
   try {
