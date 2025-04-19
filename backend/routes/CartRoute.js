@@ -18,7 +18,7 @@ export const restrictAdminAccess = (req, res, next) => {
 const router = express.Router();
 
 router.get("/", authMiddleware,restrictAdminAccess, getCart);
-router.post("/add", authMiddleware, addToCart);
-router.delete("/remove/:productId", authMiddleware, removeFromCart);
+router.post("/add", authMiddleware,restrictAdminAccess, addToCart);
+router.delete("/remove/:productId", authMiddleware,restrictAdminAccess, removeFromCart);
 
 export default router;
