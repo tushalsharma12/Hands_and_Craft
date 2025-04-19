@@ -29,13 +29,13 @@ router.delete("/delete/:id", authMiddleware, deleteUser);
 router.post("/change-password", authMiddleware, updatePassword); // Update user password
 router.post(
   "/upload-profile",
-  authMiddleware,
+  authMiddleware,restrictAdminAccess,
   upload.single("profilePic"),
   uploadProfilePic
 );
 router.put(
   "/update-profile",
-  authMiddleware,
+  authMiddleware,restrictAdminAccess,
   upload.single("profilePic"),
   updateUserProfile
 );
